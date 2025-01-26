@@ -28,26 +28,6 @@ func initDB() {
 	if err != nil {
 		log.Fatalf("Error creating table: %q: %s\n", err, sqlStmt)
 	}
-
-	// inserir somente uma vez
-	// contar quantidade de linhas na tabela
-	var count int
-	err = DB.QueryRow("SELECT COUNT(*) FROM products").Scan(&count)
-	if err != nil {
-		log.Fatalf("Error counting rows: %q\n", err)
-	}
-
-	if count == 0 {
-		_, err = DB.Exec("INSERT INTO products (name, price, stock) VALUES (?, ?, ?)", "A", 10.0, 10)
-		if err != nil {
-			log.Fatalf("Error inserting data: %q\n", err)
-		}
-
-		_, err = DB.Exec("INSERT INTO products (name, price, stock) VALUES (?, ?, ?)", "B", 20.0, 20)
-		if err != nil {
-			log.Fatalf("Error inserting data: %q\n", err)
-		}
-	}
 }
 
 func init() {
