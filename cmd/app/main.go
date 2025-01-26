@@ -22,6 +22,9 @@ func main() {
 			return
 		}
 
+		tmpl := template.Must(template.ParseFiles("web/template/index.gohtml", "web/template/product-row.gohtml"))
+
+		w.Header().Set("Content-Type", "text/html")
 		tmpl.Execute(w, products)
 	})
 
