@@ -46,3 +46,8 @@ func (p *ProductRepository) Create(name string, price float64, stock int) (Produ
 
 	return product, nil
 }
+
+func (p *ProductRepository) Remove(id int) error {
+	_, err := DB.Exec("DELETE FROM products WHERE id = ?", id)
+	return err
+}
