@@ -42,6 +42,28 @@
             flex-direction: column;
         }
 
+        
+        .group-buttons {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .group-buttons button {
+            flex: 1;
+            margin: 0 0.5rem;
+        }
+
+        .group-buttons button:first-child {
+            margin-left: 0;
+        }
+
+        .group-buttons button:last-child {
+            margin-right: 0;
+        }
+
         .form-group label {
             margin-bottom: 0.5rem;
             font-weight: bold;
@@ -62,6 +84,14 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+        }
+
+        .form-group button[type="reset"] {
+            background-color: #f44336;
+        }
+
+        .form-group button[type="reset"]:hover {
+            background-color: #d32f2f;
         }
 
         .form-group button:hover {
@@ -126,7 +156,7 @@
     </header>
 
     <div class="container">
-        <h2>Adicionar Produto</h2>
+        <h2 id="product-form-title">Adicionar Produto</h2>
         <form id="product-form" method="POST" action="/product">
             <input type="hidden" name="id" id="id" value="">
             <div class="form-group">
@@ -141,7 +171,8 @@
                 <label for="quantity">Quantidade:</label>
                 <input type="number" id="quantity" name="quantity" required>
             </div>
-            <div class="form-group">
+            <div class="form-group group-buttons">
+                <button type="reset">Limpar</button>
                 <button type="submit">Adicionar</button>
             </div>
         </form>
@@ -194,6 +225,15 @@
             });
         });
 
+        document.querySelector('button[type="reset"]').addEventListener('click', envet => {
+            event.preventDefault();
+            document.getElementById('id').value = '';
+            document.getElementById('product-form').reset();
+            document.getElementById('product-form-title').textContent = 'Adicionar Produto';
+            document.querySelector('button[type="submit"]').textContent = 'Adicionar';
+        });
+
+
         // delete product
         function deleteProduct(id) {
             fetch(`/product/${id}`, {
@@ -206,12 +246,18 @@
         // edit product
         function editProduct(id) {
             fetch(`/product/${id}`).then(res => res.json()).then(product => {
+                document.getElementById('product-form').reset();
+                document.getElementById('product-form-title').textContent = 'Editar Produto';
+                // select button type submit
+                document.querySelector('button[type="submit"]').textContent = 'Editar';
+
                 document.getElementById('id').value = product.id;
                 document.getElementById('name').value = product.name;
                 document.getElementById('price').value = product.price
                 document.getElementById('quantity').value = product.stock
             });
         }
+        
     </script>
 </body>
 </html>
