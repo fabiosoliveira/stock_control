@@ -5,8 +5,8 @@
     <td>{{.Price}}</td>
     <td>{{.Stock}}</td>
     <td class="actions">
-        <button data-id={{.ID}} class="edit">Editar</button>
-        <button data-id={{.ID}} class="delete">Excluir</button>
+        <button onclick="editProduct({{.ID}})" class="edit">Editar</button>
+        <button onclick="deleteProduct({{.ID}})" class="delete">Excluir</button>
     </td>
 </tr>
 {{end}}
