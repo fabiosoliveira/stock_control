@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Estoque</title>
+    <style>
+         body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .container {
+            margin: 2rem auto;
+            max-width: 800px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .container h2 {
+            margin: 0;
+            padding: 1rem;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+        }
+
+        .form-group {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form-group button {
+            margin-top: 1rem;
+            padding: 0.5rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .form-group button:hover {
+            background-color: #45a049;
+        }
+
+        .product-list {
+            padding: 1rem;
+        }
+
+        .product-list table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .product-list th, .product-list td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .product-list th {
+            background-color: #f4f4f9;
+            font-weight: bold;
+        }
+
+        .product-list tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .actions button {
+            margin-right: 0.5rem;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .actions .edit {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .actions .edit:hover {
+            background-color: #1976D2;
+        }
+
+        .actions .delete {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .actions .delete:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Gerenciador de Estoque</h1>
+    </header>
+
+    <div class="container">
+        <h2>Adicionar Produto</h2>
+        <form id="product-form" method="POST" action="/product">
+            <input type="hidden" name="id" id="id">
+            <div class="form-group">
+                <label for="name">Nome do Produto:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="price">Preço:</label>
+                <input type="number" id="price" name="price" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Quantidade:</label>
+                <input type="number" id="quantity" name="quantity" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Adicionar</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="container">
+        <h2>Produtos no Estoque</h2>
+        <div class="product-list">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Preço</th>
+                        <th>Quantidade</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .}}
+                    <tr id="product-{{.ID}}">
+                        <td>{{.ID}}</td>
+                        <td>{{.Name}}</td>
+                        <td>{{.Price}}</td>
+                        <td>{{.Stock}}</td>
+                        <td class="actions">
+                            <button class="edit">Editar</button>
+                            <button class="delete">Excluir</button>
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
