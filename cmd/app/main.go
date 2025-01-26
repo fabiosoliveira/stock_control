@@ -14,8 +14,6 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		tmpl, _ := template.ParseFiles("web/index.html")
-
 		products, err := productRepository.GetAll()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -48,9 +46,12 @@ func main() {
 			return
 		}
 
-		tmpl, _ := template.ParseFiles("web/template/get-product.html")
+		tmpl := template.Must(template.ParseFiles("web/template/product-row.gohtml"))
 
-		tmpl.Execute(w, product)
+		w.Header().Set("Content-Type", "text/html")
+		if err := tmpl.ExecuteTemplate(w, "ProductRow", product); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	})
 
 	http.ListenAndServe(":8080", mux)
