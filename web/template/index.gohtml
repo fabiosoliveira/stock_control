@@ -128,7 +128,7 @@
     <div class="container">
         <h2>Adicionar Produto</h2>
         <form id="product-form" method="POST" action="/product">
-            <input type="hidden" name="id" id="id">
+            <input type="hidden" name="id" id="id" value="">
             <div class="form-group">
                 <label for="name">Nome do Produto:</label>
                 <input type="text" id="name" name="name" required>
@@ -173,6 +173,7 @@
         const form = document.getElementById('product-form');
         form.addEventListener('submit', (event) => {
             event.preventDefault();
+            const id = document.getElementById('id').value;
             const name = document.getElementById('name').value;
             const price = document.getElementById('price').value;
             const quantity = document.getElementById('quantity').value;
@@ -182,24 +183,35 @@
                 body: formData
             }).then((res) => res.text()).then(newRow => {
                 console.log(newRow);
-                
-                document.querySelector('tbody').insertAdjacentHTML('beforeend', newRow);
+                console.log(id);
+                if (id != '') {
+                    document.getElementById('product-' + id).innerHTML = newRow;
+                } else {
+                    document.querySelector('tbody').insertAdjacentHTML('beforeend', newRow);
+                }
                 form.reset();
+                document.getElementById('id').value = '';
             });
         });
 
         // delete product
-        const btnDelete = document.querySelectorAll('.delete');
-        btnDelete.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                fetch(`/product/${id}`, {
-                    method: 'DELETE'
-                }).then(() => {
-                    btn.closest('tr').remove();
-                });
+        function deleteProduct(id) {
+            fetch(`/product/${id}`, {
+                method: 'DELETE'
+            }).then(() => {
+                document.getElementById('product-' + id).remove();
             });
-        })
+        }
+
+        // edit product
+        function editProduct(id) {
+            fetch(`/product/${id}`).then(res => res.json()).then(product => {
+                document.getElementById('id').value = product.id;
+                document.getElementById('name').value = product.name;
+                document.getElementById('price').value = product.price
+                document.getElementById('quantity').value = product.stock
+            });
+        }
     </script>
 </body>
 </html>
