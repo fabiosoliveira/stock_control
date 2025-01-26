@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciador de Estoque</title>
     <style>
-         body {
+        body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
@@ -42,7 +43,7 @@
             flex-direction: column;
         }
 
-        
+
         .group-buttons {
             display: flex;
             flex-direction: row;
@@ -107,7 +108,8 @@
             border-collapse: collapse;
         }
 
-        .product-list th, .product-list td {
+        .product-list th,
+        .product-list td {
             padding: 1rem;
             text-align: left;
             border-bottom: 1px solid #ddd;
@@ -148,8 +150,36 @@
         .actions .delete:hover {
             background-color: #d32f2f;
         }
+
+        /* Toast Styles */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 1000;
+        }
+        .toast.success {
+            background-color: #4CAF50;
+        }
+
+        .toast.error {
+            background-color: #f44336;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
     </style>
 </head>
+
 <body>
     <header>
         <h1>Gerenciador de Estoque</h1>
@@ -193,12 +223,14 @@
                 </thead>
                 <tbody>
                     {{range .}}
-                        {{template "ProductRow" .}}
+                    {{template "ProductRow" .}}
                     {{end}}
                 </tbody>
             </table>
         </div>
     </div>
+    <!-- Toast Element -->
+    <div id="toast" class="toast"></div>
     <script>
         // create product
         const form = document.getElementById('product-form');
@@ -213,8 +245,6 @@
                 method: 'POST',
                 body: formData
             }).then((res) => res.text()).then(newRow => {
-                console.log(newRow);
-                console.log(id);
                 if (id != '') {
                     document.getElementById('product-' + id).innerHTML = newRow;
                 } else {
@@ -222,6 +252,7 @@
                 }
                 form.reset();
                 document.getElementById('id').value = '';
+                showToast('Produto salvo com sucesso', 'success');
             });
         });
 
@@ -240,7 +271,21 @@
                 method: 'DELETE'
             }).then(() => {
                 document.getElementById('product-' + id).remove();
+                showToast('Produto excluido com sucesso', 'success');
             });
+
+        }
+
+        function showToast(message, type) {
+            // Exibir o toast
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show', type);
+            
+            // Remover toast após 3 segundos
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
         }
 
         // edit product
@@ -257,7 +302,9 @@
                 document.getElementById('quantity').value = product.stock
             });
         }
-        
+
+
     </script>
 </body>
+
 </html>
