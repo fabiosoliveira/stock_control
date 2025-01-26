@@ -188,7 +188,18 @@
             });
         });
 
-     
+        // delete product
+        const btnDelete = document.querySelectorAll('.delete');
+        btnDelete.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                fetch(`/product/${id}`, {
+                    method: 'DELETE'
+                }).then(() => {
+                    btn.closest('tr').remove();
+                });
+            });
+        })
     </script>
 </body>
 </html>
