@@ -25,3 +25,24 @@ func (p *ProductRepository) GetAll() ([]Product, error) {
 
 	return products, nil
 }
+
+func (p *ProductRepository) Create(name string, price float64, stock int) (Product, error) {
+	result, err := DB.Exec("INSERT INTO products (name, price, stock) VALUES (?, ?, ?)", name, price, stock)
+	if err != nil {
+		return Product{}, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return Product{}, err
+	}
+
+	product := Product{
+		ID:    int(id),
+		Name:  name,
+		Price: price,
+		Stock: stock,
+	}
+
+	return product, nil
+}
