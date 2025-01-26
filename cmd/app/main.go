@@ -3,6 +3,7 @@ package main
 import (
 	"html/template"
 	"net/http"
+	"strconv"
 
 	"github.com/fabiosoliveira/stock_control/internal/product"
 )
@@ -22,6 +23,31 @@ func main() {
 		}
 
 		tmpl.Execute(w, products)
+	})
+
+	mux.HandleFunc("POST /product", func(w http.ResponseWriter, r *http.Request) {
+		name := r.FormValue("name")
+		price, err := strconv.ParseFloat(r.FormValue("price"), 64)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		stock, err := strconv.Atoi(r.FormValue("quantity"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		product, err := productRepository.Create(name, price, stock)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		tmpl, _ := template.ParseFiles("web/template/get-product.html")
+
+		tmpl.Execute(w, product)
 	})
 
 	http.ListenAndServe(":8080", mux)
