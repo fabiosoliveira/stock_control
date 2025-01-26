@@ -54,5 +54,22 @@ func main() {
 		}
 	})
 
+	mux.HandleFunc("DELETE /product/{id}", func(w http.ResponseWriter, r *http.Request) {
+
+		id, err := strconv.Atoi(r.PathValue("id"))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		err = productRepository.Remove(id)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusNoContent)
+	})
+
 	http.ListenAndServe(":8080", mux)
 }
