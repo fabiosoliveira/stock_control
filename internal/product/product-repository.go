@@ -26,6 +26,12 @@ func (p *ProductRepository) GetAll() ([]Product, error) {
 	return products, nil
 }
 
+func (p *ProductRepository) GetByID(id int) (Product, error) {
+	var product Product
+	err := DB.QueryRow("SELECT * FROM products WHERE id = ?", id).Scan(&product.ID, &product.Name, &product.Price, &product.Stock)
+	return product, err
+}
+
 func (p *ProductRepository) Create(name string, price float64, stock int) (Product, error) {
 	result, err := DB.Exec("INSERT INTO products (name, price, stock) VALUES (?, ?, ?)", name, price, stock)
 	if err != nil {
@@ -45,6 +51,11 @@ func (p *ProductRepository) Create(name string, price float64, stock int) (Produ
 	}
 
 	return product, nil
+}
+
+func (p *ProductRepository) Update(id int, name string, price float64, stock int) error {
+	_, err := DB.Exec("UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?", name, price, stock, id)
+	return err
 }
 
 func (p *ProductRepository) Remove(id int) error {
