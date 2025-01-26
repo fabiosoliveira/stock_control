@@ -177,5 +177,27 @@
             </table>
         </div>
     </div>
+    <script>
+        // create product
+        const form = document.getElementById('product-form');
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const price = document.getElementById('price').value;
+            const quantity = document.getElementById('quantity').value;
+            const formData = new FormData(form);
+            fetch('/product', {
+                method: 'POST',
+                body: formData
+            }).then((res) => res.text()).then(newRow => {
+                console.log(newRow);
+                
+                document.querySelector('tbody').insertAdjacentHTML('beforeend', newRow);
+                form.reset();
+            });
+        });
+
+     
+    </script>
 </body>
 </html>
