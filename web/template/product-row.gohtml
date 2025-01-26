@@ -1,3 +1,4 @@
+{{define "ProductRow"}}
 <tr id="product-{{.ID}}">
     <td>{{.ID}}</td>
     <td>{{.Name}}</td>
@@ -8,3 +9,4 @@
         <button data-id={{.ID}} class="delete">Excluir</button>
     </td>
 </tr>
+{{end}}

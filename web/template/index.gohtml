@@ -162,16 +162,7 @@
                 </thead>
                 <tbody>
                     {{range .}}
-                    <tr id="product-{{.ID}}">
-                        <td>{{.ID}}</td>
-                        <td>{{.Name}}</td>
-                        <td>{{.Price}}</td>
-                        <td>{{.Stock}}</td>
-                        <td class="actions">
-                            <button class="edit">Editar</button>
-                            <button class="delete">Excluir</button>
-                        </td>
-                    </tr>
+                        {{template "ProductRow" .}}
                     {{end}}
                 </tbody>
             </table>
