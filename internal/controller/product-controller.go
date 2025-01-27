@@ -20,8 +20,8 @@ type ProductController struct {
 func NewProductController(productRepository product.ProductRepository) *ProductController {
 	return &ProductController{
 		repository:     productRepository,
-		templateIndex:  template.Must(template.ParseFiles("web/template/index.gohtml", "web/template/product-row.gohtml")),
-		templateCreate: template.Must(template.ParseFiles("web/template/product-row.gohtml")),
+		templateIndex:  template.Must(template.ParseFiles("internal/template/index.gohtml", "internal/template/product-row.gohtml")),
+		templateCreate: template.Must(template.ParseFiles("internal/template/product-row.gohtml")),
 	}
 }
 
