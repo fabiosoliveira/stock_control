@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/fabiosoliveira/stock_control/internal/controller"
+	"github.com/fabiosoliveira/stock_control/internal/middleware"
 	"github.com/fabiosoliveira/stock_control/internal/product"
 )
 
@@ -12,11 +13,11 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/", productController.Index)
+	mux.Handle("/", middleware.CachePage(productController.Index))
 
-	mux.HandleFunc("POST /product", productController.CreateProduct)
+	mux.Handle("POST /product", middleware.CachePage(productController.CreateProduct))
 
-	mux.HandleFunc("DELETE /product/{id}", productController.DeleteProduct)
+	mux.Handle("DELETE /product/{id}", middleware.CachePage(productController.DeleteProduct))
 
 	mux.HandleFunc("GET /product/{id}", productController.GetProduct)
 
