@@ -1,5 +1,7 @@
 package product
 
+import "github.com/fabiosoliveira/stock_control/internal/config"
+
 type ProductRepositorySqlite struct{}
 
 func NewProductRepositorySqlite() *ProductRepositorySqlite {
@@ -7,7 +9,7 @@ func NewProductRepositorySqlite() *ProductRepositorySqlite {
 }
 
 func (p *ProductRepositorySqlite) GetAll() ([]Product, error) {
-	rows, err := DB.Query("SELECT * FROM products")
+	rows, err := config.DB.Query("SELECT * FROM products")
 	if err != nil {
 		return nil, err
 	}
@@ -28,12 +30,12 @@ func (p *ProductRepositorySqlite) GetAll() ([]Product, error) {
 
 func (p *ProductRepositorySqlite) GetByID(id int) (Product, error) {
 	var product Product
-	err := DB.QueryRow("SELECT * FROM products WHERE id = ?", id).Scan(&product.ID, &product.Name, &product.Price, &product.Stock)
+	err := config.DB.QueryRow("SELECT * FROM products WHERE id = ?", id).Scan(&product.ID, &product.Name, &product.Price, &product.Stock)
 	return product, err
 }
 
 func (p *ProductRepositorySqlite) Create(name string, price float64, stock int) (Product, error) {
-	result, err := DB.Exec("INSERT INTO products (name, price, stock) VALUES (?, ?, ?)", name, price, stock)
+	result, err := config.DB.Exec("INSERT INTO products (name, price, stock) VALUES (?, ?, ?)", name, price, stock)
 	if err != nil {
 		return Product{}, err
 	}
@@ -54,11 +56,11 @@ func (p *ProductRepositorySqlite) Create(name string, price float64, stock int) 
 }
 
 func (p *ProductRepositorySqlite) Update(id int, name string, price float64, stock int) error {
-	_, err := DB.Exec("UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?", name, price, stock, id)
+	_, err := config.DB.Exec("UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?", name, price, stock, id)
 	return err
 }
 
 func (p *ProductRepositorySqlite) Remove(id int) error {
-	_, err := DB.Exec("DELETE FROM products WHERE id = ?", id)
+	_, err := config.DB.Exec("DELETE FROM products WHERE id = ?", id)
 	return err
 }
