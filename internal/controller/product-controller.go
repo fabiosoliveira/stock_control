@@ -2,47 +2,53 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
+	"sync"
 
 	"github.com/fabiosoliveira/stock_control/internal/product"
 )
 
 type ProductController struct {
-	product.ProductRepository
+	repository     product.ProductRepository
+	templateIndex  *template.Template
+	templateCreate *template.Template
+	mu             sync.RWMutex
 }
 
 func NewProductController(productRepository product.ProductRepository) *ProductController {
-	return &ProductController{ProductRepository: productRepository}
+	return &ProductController{
+		repository:     productRepository,
+		templateIndex:  template.Must(template.ParseFiles("web/template/index.gohtml", "web/template/product-row.gohtml")),
+		templateCreate: template.Must(template.ParseFiles("web/template/product-row.gohtml")),
+	}
 }
 
-func (repository *ProductController) Index(w http.ResponseWriter, r *http.Request) {
-	products, err := repository.GetAll()
+func (p *ProductController) Index(w http.ResponseWriter, r *http.Request) {
+	p.mu.RLock()
+	products, err := p.repository.GetAll()
+	p.mu.RUnlock()
+
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	tmpl := template.Must(template.ParseFiles("web/template/index.gohtml", "web/template/product-row.gohtml"))
-
 	w.Header().Set("Content-Type", "text/html")
-	tmpl.Execute(w, products)
+	p.templateIndex.Execute(w, products)
 }
 
-func (repository *ProductController) CreateProduct(w http.ResponseWriter, r *http.Request) {
+func (p *ProductController) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	price, err := strconv.ParseFloat(r.FormValue("price"), 64)
 	if err != nil {
-		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	stock, err := strconv.Atoi(r.FormValue("quantity"))
 	if err != nil {
-		fmt.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -58,44 +64,45 @@ func (repository *ProductController) CreateProduct(w http.ResponseWriter, r *htt
 	if idParam != "" {
 		id, err := strconv.Atoi(idParam)
 		if err != nil {
-			fmt.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		err = repository.Update(id, name, price, stock)
+		p.mu.Lock()
+		err = p.repository.Update(id, name, price, stock)
+		p.mu.Unlock()
 		if err != nil {
-			fmt.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		product.ID = id
 	} else {
 
-		product, err = repository.Create(name, price, stock)
+		p.mu.Lock()
+		product, err = p.repository.Create(name, price, stock)
+		p.mu.Unlock()
 		if err != nil {
-			fmt.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 	}
 
-	tmpl := template.Must(template.ParseFiles("web/template/product-row.gohtml"))
-
 	w.Header().Set("Content-Type", "text/html")
-	if err := tmpl.ExecuteTemplate(w, "ProductRow", product); err != nil {
+	if err := p.templateCreate.ExecuteTemplate(w, "ProductRow", product); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
-func (repository *ProductController) DeleteProduct(w http.ResponseWriter, r *http.Request) {
+func (p *ProductController) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	err = repository.Remove(id)
+	p.mu.Lock()
+	err = p.repository.Remove(id)
+	p.mu.Unlock()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -104,14 +111,16 @@ func (repository *ProductController) DeleteProduct(w http.ResponseWriter, r *htt
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (repository *ProductController) GetProduct(w http.ResponseWriter, r *http.Request) {
+func (p *ProductController) GetProduct(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	product, err := repository.GetByID(id)
+	p.mu.RLock()
+	product, err := p.repository.GetByID(id)
+	p.mu.RUnlock()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
