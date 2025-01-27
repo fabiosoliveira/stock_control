@@ -3,9 +3,11 @@ package middleware
 import (
 	"net/http"
 	"strings"
+	"sync"
 )
 
 var cache = make(map[string][]byte)
+var mu sync.RWMutex
 
 // responseRecorder captures the HTTP response
 type responseRecorder struct {
@@ -30,12 +32,17 @@ func CachePage(next http.HandlerFunc) http.Handler {
 
 		if strings.HasPrefix(key, "/product") {
 			next(w, r)
+			mu.Lock()
 			delete(cache, key)
+			mu.Unlock()
 			return
 		}
+
+		mu.RLock()
 		if html, ok := cache[key]; ok {
 			w.WriteHeader(http.StatusOK)
 			w.Write(html)
+			mu.RUnlock()
 			return
 		}
 
@@ -44,7 +51,9 @@ func CachePage(next http.HandlerFunc) http.Handler {
 
 		// Cache the response if the status code is 200
 		if rec.statusCode == http.StatusOK {
+			mu.Lock()
 			cache[key] = rec.body
+			mu.Unlock()
 		}
 	})
 }
