@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"net/http"
-	"strings"
 	"sync"
 )
 
@@ -30,19 +29,17 @@ func CachePage(next http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		key := r.URL.Path
 
-		if strings.HasPrefix(key, "/product") {
+		if r.Method != http.MethodGet {
 			next(w, r)
 			mu.Lock()
-			delete(cache, key)
+			cache = make(map[string][]byte)
 			mu.Unlock()
 			return
 		}
 
-		mu.RLock()
 		if html, ok := cache[key]; ok {
 			w.WriteHeader(http.StatusOK)
 			w.Write(html)
-			mu.RUnlock()
 			return
 		}
 
