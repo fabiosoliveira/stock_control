@@ -32,7 +32,7 @@ func CachePage(next http.HandlerFunc) http.Handler {
 		if r.Method != http.MethodGet {
 			next(w, r)
 			mu.Lock()
-			cache = make(map[string][]byte)
+			cache = make(map[string][]byte) // clear the cache
 			mu.Unlock()
 			return
 		}
